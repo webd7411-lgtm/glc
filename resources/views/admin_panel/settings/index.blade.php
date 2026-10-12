@@ -275,7 +275,7 @@
                                     <!-- Any other company settings -->
                                     @php
                                         $handledKeys = [
-                                            'company_logo', 'company_name', 'currency_symbol', 'company_phone',
+                                            'company_logo', 'web_site_logo', 'company_name', 'currency_symbol', 'company_phone',
                                             'invoice_company_name', 'invoice_online_link',
                                             'invoice_header_contacts_left', 'invoice_header_contacts_right', 'invoice_header_tagline',
                                             'company_address', 'invoice_terms', 'facebook_link', 'tiktok_link', 'instagram_link', 'website_link'
@@ -376,7 +376,7 @@
         </div>
     </div>
 
-    @push('scripts')
+    @section('js')
         <script>
             $(document).ready(function() {
                 // Live preview logo on file select
@@ -412,7 +412,8 @@
                     var origHtml = submitBtn.html();
                     submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Saving...');
 
-                    var formData = new FormData(this);
+                    var formEl = document.getElementById('settingsForm');
+                    var formData = new FormData(formEl);
 
                     $.ajax({
                         url: '{{ route('settings.update') }}',
@@ -420,6 +421,9 @@
                         data: formData,
                         processData: false,
                         contentType: false,
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') || '{{ csrf_token() }}'
+                        },
                         success: function(response) {
                             submitBtn.prop('disabled', false).html(origHtml);
                             Swal.fire({
@@ -431,7 +435,7 @@
                             });
 
                             if (response.logo_url) {
-                                $('#logoPreview').attr('src', response.logo_url).show();
+                                $('#logoPreview').attr('src', response.logo_url + '?t=' + new Date().getTime()).show();
                                 $('#noLogoText').hide();
                                 $('#btnRemoveLogo').show();
                                 $('#removeCompanyLogoInput').val('0');
@@ -462,5 +466,5 @@
                 });
             });
         </script>
-    @endpush
+    @endsection
 @endsection

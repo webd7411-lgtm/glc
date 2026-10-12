@@ -304,46 +304,49 @@
         <!-- Header -->
         @php
             $companyLogo = \App\Models\Setting::get('company_logo') ?: \App\Models\Setting::get('web_site_logo');
-            $companyName = \App\Models\Setting::get('company_name', 'GLC');
+            $companyName = \App\Models\Setting::get('invoice_company_name') ?: \App\Models\Setting::get('company_name', 'GLC');
+            $headerTagline = \App\Models\Setting::get('invoice_header_tagline');
+            $leftContacts = \App\Models\Setting::get('invoice_header_contacts_left');
+            $rightContacts = \App\Models\Setting::get('invoice_header_contacts_right');
             $companyAddress = \App\Models\Setting::get('company_address');
             $companyPhone = \App\Models\Setting::get('company_phone');
             $invoiceTerms = \App\Models\Setting::get('invoice_terms', 'NO RETURN, ONLY EXCHANGE IN 3 DAYS');
+            $defaultLogo = 'uploads/settings/company_logo_default.png';
+            $activeLogo = null;
+            if (!empty($companyLogo) && file_exists(public_path(ltrim($companyLogo, '/')))) {
+                $activeLogo = asset(ltrim($companyLogo, '/'));
+            } elseif (file_exists(public_path($defaultLogo))) {
+                $activeLogo = asset($defaultLogo);
+            }
         @endphp
-        @if(!empty($companyLogo))
+        @if(!empty($activeLogo))
             <div class="receipt-logo">
-                <img src="{{ asset(ltrim($companyLogo, '/')) }}" alt="Company Logo" style="max-height: 55px; max-width: 160px; object-fit: contain; margin: 0 auto; display: block;">
+                <img src="{{ $activeLogo }}" alt="Company Logo" style="max-height: 52px; max-width: 160px; object-fit: contain; margin: 0 auto; display: block;">
             </div>
         @endif
-        <div class="company-name">{{ $companyName }}</div>
-        <div class="company-info">
-            @if(!empty($companyAddress))
-                <div>{!! nl2br(e($companyAddress)) !!}</div>
-            @endif
-            @if(!empty($companyPhone))
-                <div>Ph: {{ $companyPhone }}</div>
-            @endif
-        </div>
-        @if(\App\Models\Setting::get('facebook_link') || \App\Models\Setting::get('tiktok_link') || \App\Models\Setting::get('instagram_link') || \App\Models\Setting::get('website_link'))
-        <div style="text-align: left; font-size: 10px; line-height: 1.4; word-wrap: break-word; overflow-wrap: break-word; margin-top: 4px;">
-            @if(\App\Models\Setting::get('facebook_link'))
-                <div style="margin-bottom: 2px;"><strong>Facebook:</strong> {{ \App\Models\Setting::get('facebook_link') }}</div>
-            @endif
-            @if(\App\Models\Setting::get('tiktok_link'))
-                <div style="margin-bottom: 2px;"><strong>TikTok:</strong> {{ \App\Models\Setting::get('tiktok_link') }}</div>
-            @endif
-            @if(\App\Models\Setting::get('instagram_link'))
-                <div style="margin-bottom: 2px;"><strong>Instagram:</strong> {{ \App\Models\Setting::get('instagram_link') }}</div>
-            @endif
-            @if(\App\Models\Setting::get('website_link'))
-                <div style="margin-bottom: 2px;"><strong>Website:</strong> {{ \App\Models\Setting::get('website_link') }}</div>
-            @endif
+        <div class="company-name" style="font-size: 16px; font-weight: 800; color: #000; text-align: center; margin-top: 2px;">{{ $companyName }}</div>
+        @if(!empty($headerTagline))
+            <div style="font-size: 9px; font-weight: 600; text-align: center; color: #000; line-height: 1.25; margin-top: 2px;">
+                {!! nl2br(e($headerTagline)) !!}
+            </div>
+        @endif
+
+        <!-- Header Contacts (Faisal Mehmood, Furqaan Shakeel, Anjum Shakeel, Tayyab Shakeel, PTCL) -->
+        @if(!empty($leftContacts) || !empty($rightContacts))
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-top: 6px; padding-top: 5px; border-top: 1px dotted #000;">
+            <div style="text-align: left; width: 48%; font-weight: 600; font-size: 9px; line-height: 1.35; color: #000;">
+                {!! nl2br(e($leftContacts)) !!}
+            </div>
+            <div style="text-align: right; width: 48%; font-weight: 600; font-size: 9px; line-height: 1.35; color: #000;">
+                {!! nl2br(e($rightContacts)) !!}
+            </div>
         </div>
         @endif
 
         @php
             $termsFirst = explode("\n", trim($invoiceTerms))[0] ?? 'NO RETURN, ONLY EXCHANGE IN 3 DAYS';
         @endphp
-        <div class="policy-banner">{{ strtoupper(trim($termsFirst)) }}</div>
+        <div class="policy-banner" style="margin-top: 6px;">{{ strtoupper(trim($termsFirst)) }}</div>
 
         <div class="divider"></div>
 
@@ -580,6 +583,13 @@
             </div>
             @endif
         </div>
+
+        <!-- Bottom Branches / Address -->
+        @if(!empty($companyAddress))
+        <div class="receipt-bottom-address" style="font-size: 9.5px; line-height: 1.35; margin: 8px 0 6px 0; color: #000; border-top: 1px dashed #000; padding-top: 6px; text-align: center;">
+            <div style="font-weight: 500; font-size: 9.5px; line-height: 1.35; color: #000;">{!! nl2br(e($companyAddress)) !!}</div>
+        </div>
+        @endif
 
         <!-- Footer -->
         <div class="footer">

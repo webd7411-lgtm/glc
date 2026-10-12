@@ -545,8 +545,17 @@
                     <!-- Center: Oval Logo & Brand Tagline -->
                     <div class="header-center-box">
                         <div class="logo-emblem">
-                            @if(!empty($companyLogo))
-                                <img src="{{ asset(ltrim($companyLogo, '/')) }}" alt="Logo" class="logo-img" style="max-height: 65px; max-width: 220px; object-fit: contain; display: block; margin: 0 auto;">
+                            @php
+                                $defaultLogo = 'uploads/settings/company_logo_default.png';
+                                $activeLogo = null;
+                                if (!empty($companyLogo) && file_exists(public_path(ltrim($companyLogo, '/')))) {
+                                    $activeLogo = asset(ltrim($companyLogo, '/'));
+                                } elseif (file_exists(public_path($defaultLogo))) {
+                                    $activeLogo = asset($defaultLogo);
+                                }
+                            @endphp
+                            @if(!empty($activeLogo))
+                                <img src="{{ $activeLogo }}" alt="Logo" class="logo-img" style="max-height: 65px; max-width: 220px; object-fit: contain; display: block; margin: 0 auto;">
                             @else
                                 <svg class="logo-svg" viewBox="0 0 250 88">
                                     <ellipse cx="125" cy="44" rx="116" ry="38" fill="none" stroke="#d1381b" stroke-width="4.5" />
@@ -608,8 +617,8 @@
             <div class="table-wrapper">
                 <!-- Watermark -->
                 <div class="watermark-overlay">
-                    @if(!empty($companyLogo))
-                        <img src="{{ asset(ltrim($companyLogo, '/')) }}" alt="Watermark" style="max-width: 320px; max-height: 140px; object-fit: contain; display: block; margin: 0 auto;">
+                    @if(!empty($activeLogo))
+                        <img src="{{ $activeLogo }}" alt="Watermark" style="max-width: 320px; max-height: 140px; object-fit: contain; display: block; margin: 0 auto;">
                     @else
                         <svg viewBox="0 0 320 140" style="width: 100%; height: auto;">
                             <ellipse cx="160" cy="55" rx="150" ry="50" fill="none" stroke="#d1381b" stroke-width="4.5" />
