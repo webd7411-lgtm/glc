@@ -8,7 +8,8 @@
     <style>
         @media print {
             @page {
-                margin: 2mm 3mm 2mm 2mm !important;
+                size: 80mm auto;
+                margin: 2mm !important;
             }
             body {
                 width: 100% !important;
@@ -23,10 +24,10 @@
             .receipt-container {
                 box-shadow: none !important;
                 border: none !important;
-                margin: 0 !important;
-                padding: 0 4px 0 0 !important;
-                width: 96% !important;
-                max-width: 96% !important;
+                margin: 0 auto !important;
+                padding: 1mm 2mm 3mm 2mm !important;
+                width: 72mm !important;
+                max-width: 72mm !important;
             }
         }
 
@@ -36,23 +37,25 @@
 
         body {
             font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            background: #f1f5f9;
+            background: #cbd5e1;
             margin: 0;
-            padding: 5px 0;
+            padding: 20px 0;
             color: #000;
             font-size: 11px;
             font-weight: 400;
             line-height: 1.3;
             -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
         }
 
         .receipt-container {
-            width: 100%;
+            width: 76mm;
             max-width: 76mm;
             margin: 0 auto;
             background: #fff;
-            padding: 6px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 8px 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.18);
+            border-radius: 4px;
             position: relative;
             overflow: hidden;
             word-wrap: break-word;
@@ -292,7 +295,8 @@
 
         <div style="display: flex; gap: 6px;">
             <a href="javascript:void(0)" onclick="triggerPrint()" class="btn btn-primary" style="flex: 1; padding: 7px 4px; font-size: 11px; border-radius: 5px; text-decoration: none; text-align: center; background: #000; color: #fff; font-weight: 600;">🖨️ Print Receipt</a>
-            <a href="{{ route('pos.index') }}" class="btn btn-secondary" style="flex: 1; padding: 7px 4px; font-size: 11px; border-radius: 5px; text-decoration: none; text-align: center; background: #2563eb; color: #fff; font-weight: 600;">⬅️ POS Next</a>
+            <a href="{{ route('sales.invoice', $sale->id) }}" class="btn btn-warning" style="flex: 1; padding: 7px 4px; font-size: 11px; border-radius: 5px; text-decoration: none; text-align: center; background: #d97706; color: #fff; font-weight: 600;">📄 A4 Invoice</a>
+            <a href="{{ route('sale.index') }}" class="btn btn-secondary" style="flex: 1; padding: 7px 4px; font-size: 11px; border-radius: 5px; text-decoration: none; text-align: center; background: #475569; color: #fff; font-weight: 600;">Back to Sales</a>
         </div>
     </div>
 
@@ -300,16 +304,24 @@
         <!-- Header -->
         @php
             $companyLogo = \App\Models\Setting::get('company_logo') ?: \App\Models\Setting::get('web_site_logo');
+            $companyName = \App\Models\Setting::get('company_name', 'GLC');
+            $companyAddress = \App\Models\Setting::get('company_address');
+            $companyPhone = \App\Models\Setting::get('company_phone');
+            $invoiceTerms = \App\Models\Setting::get('invoice_terms', 'NO RETURN, ONLY EXCHANGE IN 3 DAYS');
         @endphp
         @if(!empty($companyLogo))
             <div class="receipt-logo">
-                <img src="{{ asset(ltrim($companyLogo, '/')) }}" alt="Company Logo">
+                <img src="{{ asset(ltrim($companyLogo, '/')) }}" alt="Company Logo" style="max-height: 55px; max-width: 160px; object-fit: contain; margin: 0 auto; display: block;">
             </div>
         @endif
-        <div class="company-name">{{ \App\Models\Setting::get('company_name', 'Three Stars Medical') }}</div>
+        <div class="company-name">{{ $companyName }}</div>
         <div class="company-info">
-            <div>{{ \App\Models\Setting::get('company_address', 'Hyderabad') }}</div>
-            <div>Ph: {{ \App\Models\Setting::get('company_phone', '0327-9226901') }}</div>
+            @if(!empty($companyAddress))
+                <div>{!! nl2br(e($companyAddress)) !!}</div>
+            @endif
+            @if(!empty($companyPhone))
+                <div>Ph: {{ $companyPhone }}</div>
+            @endif
         </div>
         @if(\App\Models\Setting::get('facebook_link') || \App\Models\Setting::get('tiktok_link') || \App\Models\Setting::get('instagram_link') || \App\Models\Setting::get('website_link'))
         <div style="text-align: left; font-size: 10px; line-height: 1.4; word-wrap: break-word; overflow-wrap: break-word; margin-top: 4px;">
@@ -328,7 +340,10 @@
         </div>
         @endif
 
-        <div class="policy-banner">No Return, Only Exchange in 3 days</div>
+        @php
+            $termsFirst = explode("\n", trim($invoiceTerms))[0] ?? 'NO RETURN, ONLY EXCHANGE IN 3 DAYS';
+        @endphp
+        <div class="policy-banner">{{ strtoupper(trim($termsFirst)) }}</div>
 
         <div class="divider"></div>
 

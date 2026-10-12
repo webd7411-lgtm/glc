@@ -104,26 +104,199 @@
                                         </div>
                                     </div>
 
-                                    @if (isset($settings['company']))
-                                        @foreach ($settings['company'] as $setting)
-                                            @if ($setting['key'] === 'company_logo')
-                                                @continue
-                                            @endif
-                                            <div class="form-group">
-                                                <label>{{ $setting['label'] }}</label>
-                                                @if ($setting['type'] === 'text')
-                                                    <textarea name="settings[{{ $setting['key'] }}]" class="form-control" rows="3" {{ !$canEditSettings ? 'disabled' : '' }}>{{ $setting['value'] }}</textarea>
-                                                @else
-                                                    <input type="text" name="settings[{{ $setting['key'] }}]"
-                                                        class="form-control" value="{{ $setting['value'] }}" {{ !$canEditSettings ? 'disabled' : '' }}>
-                                                @endif
-                                                @if ($setting['description'])
-                                                    <small
-                                                        class="form-text text-muted">{{ $setting['description'] }}</small>
-                                                @endif
+                                    @php
+                                        $compSettings = collect($settings['company'] ?? [])->keyBy('key');
+                                    @endphp
+
+                                    <!-- Basic Company Info Card -->
+                                    <div class="card mb-4 border shadow-sm">
+                                        <div class="card-header bg-white font-weight-bold d-flex align-items-center">
+                                            <i class="fas fa-building text-primary mr-2"></i> Company Basic Details
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    @if(isset($compSettings['company_name']))
+                                                    <div class="form-group">
+                                                        <label>{{ $compSettings['company_name']['label'] }}</label>
+                                                        <input type="text" name="settings[company_name]" class="form-control" value="{{ $compSettings['company_name']['value'] }}" {{ !$canEditSettings ? 'disabled' : '' }}>
+                                                        <small class="form-text text-muted">{{ $compSettings['company_name']['description'] }}</small>
+                                                    </div>
+                                                    @endif
+                                                </div>
+                                                <div class="col-md-6">
+                                                    @if(isset($compSettings['currency_symbol']))
+                                                    <div class="form-group">
+                                                        <label>{{ $compSettings['currency_symbol']['label'] }}</label>
+                                                        <input type="text" name="settings[currency_symbol]" class="form-control" value="{{ $compSettings['currency_symbol']['value'] }}" {{ !$canEditSettings ? 'disabled' : '' }}>
+                                                        <small class="form-text text-muted">{{ $compSettings['currency_symbol']['description'] }}</small>
+                                                    </div>
+                                                    @endif
+                                                </div>
+                                                <div class="col-md-12">
+                                                    @if(isset($compSettings['company_phone']))
+                                                    <div class="form-group">
+                                                        <label>{{ $compSettings['company_phone']['label'] }}</label>
+                                                        <input type="text" name="settings[company_phone]" class="form-control" value="{{ $compSettings['company_phone']['value'] }}" {{ !$canEditSettings ? 'disabled' : '' }}>
+                                                        <small class="form-text text-muted">{{ $compSettings['company_phone']['description'] }}</small>
+                                                    </div>
+                                                    @endif
+                                                </div>
                                             </div>
-                                        @endforeach
-                                    @endif
+                                        </div>
+                                    </div>
+
+                                    <!-- Invoice Header & Footer Customization Card -->
+                                    <div class="card mb-4 border shadow-sm border-primary">
+                                        <div class="card-header bg-primary text-white font-weight-bold d-flex align-items-center">
+                                            <i class="fas fa-file-invoice mr-2"></i> Simple Invoice Header & Footer Customization
+                                        </div>
+                                        <div class="card-body" style="background-color: #fafbfc;">
+                                            <p class="text-muted small mb-3">
+                                                Customize the 3-column contact header and bottom address banner of the sales invoice (http://127.0.0.1:8000/sales/{id}/invoice).
+                                            </p>
+
+                                            <div class="row">
+                                                <!-- Invoice Company Title / Name (e.g. Long Life Accessories) -->
+                                                <div class="col-md-7">
+                                                    @php 
+                                                        $sCompName = $compSettings['invoice_company_name'] ?? null; 
+                                                        $valCompName = $sCompName['value'] ?? ($compSettings['company_name']['value'] ?? 'Long Life Accessories');
+                                                    @endphp
+                                                    <div class="form-group">
+                                                        <label class="font-weight-bold text-dark">
+                                                            <i class="fas fa-heading text-primary mr-1"></i> Invoice Company Title / Line (Center Header)
+                                                        </label>
+                                                        <input type="text" name="settings[invoice_company_name]" class="form-control font-weight-bold text-danger" value="{{ $valCompName }}" placeholder="Long Life Accessories" {{ !$canEditSettings ? 'disabled' : '' }}>
+                                                        <small class="form-text text-muted">Title line displayed directly below the GLC logo in the center (e.g. <strong>Long Life Accessories</strong>).</small>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Invoice Online Link / Website URL -->
+                                                <div class="col-md-5">
+                                                    @php 
+                                                        $sOnlineLink = $compSettings['invoice_online_link'] ?? null; 
+                                                        $valOnlineLink = $sOnlineLink['value'] ?? ($compSettings['website_link']['value'] ?? '');
+                                                    @endphp
+                                                    <div class="form-group">
+                                                        <label class="font-weight-bold text-dark">
+                                                            <i class="fas fa-link text-info mr-1"></i> Invoice Online / Website Link
+                                                        </label>
+                                                        <input type="text" name="settings[invoice_online_link]" class="form-control" value="{{ $valOnlineLink }}" placeholder="e.g. http://127.0.0.1:8000/sales/1/invoice" {{ !$canEditSettings ? 'disabled' : '' }}>
+                                                        <small class="form-text text-muted">Optional web link or invoice URL.</small>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Header Left Contacts -->
+                                                <div class="col-md-6">
+                                                    @php $sLeft = $compSettings['invoice_header_contacts_left'] ?? null; @endphp
+                                                    <div class="form-group">
+                                                        <label class="font-weight-bold text-dark">
+                                                            <i class="fas fa-user-tag text-info mr-1"></i> Header Contacts (Left Column)
+                                                        </label>
+                                                        <textarea name="settings[invoice_header_contacts_left]" class="form-control font-weight-bold" rows="4" placeholder="Faisal Mehmood&#10;0325 4682466&#10;Furqaan Shakeel&#10;03044576200" {{ !$canEditSettings ? 'disabled' : '' }}>{{ $sLeft['value'] ?? '' }}</textarea>
+                                                        <small class="form-text text-muted">Names and phone numbers shown on the left of the invoice logo.</small>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Header Right Contacts -->
+                                                <div class="col-md-6">
+                                                    @php $sRight = $compSettings['invoice_header_contacts_right'] ?? null; @endphp
+                                                    <div class="form-group">
+                                                        <label class="font-weight-bold text-dark">
+                                                            <i class="fas fa-phone-alt text-success mr-1"></i> Header Contacts (Right Column)
+                                                        </label>
+                                                        <textarea name="settings[invoice_header_contacts_right]" class="form-control font-weight-bold" rows="4" placeholder="Anjum Shakeel&#10;03008033184&#10;Tayyab Shakeel&#10;03054453139&#10;PTCL #: 042 37322272&#10;042 37232370" {{ !$canEditSettings ? 'disabled' : '' }}>{{ $sRight['value'] ?? '' }}</textarea>
+                                                        <small class="form-text text-muted">Names, mobile & PTCL numbers shown on the right of the invoice logo.</small>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Header Tagline / Deals In -->
+                                                <div class="col-md-12">
+                                                    @php $sTag = $compSettings['invoice_header_tagline'] ?? null; @endphp
+                                                    <div class="form-group">
+                                                        <label class="font-weight-bold text-dark">
+                                                            <i class="fas fa-tags text-warning mr-1"></i> Header Deals In / Product Categories (Under Company Name)
+                                                        </label>
+                                                        <textarea name="settings[invoice_header_tagline]" class="form-control font-weight-bold text-danger" rows="2" placeholder="Power Bank, Battery, Data Cable, Charger, Head Phone&#10;Handsfree, Bluetooth & Multimedia" {{ !$canEditSettings ? 'disabled' : '' }}>{{ $sTag['value'] ?? '' }}</textarea>
+                                                        <small class="form-text text-muted">Categories/tagline displayed directly below the company name in the invoice header.</small>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Invoice Note / Terms (NOTE Section) -->
+                                                <div class="col-md-12">
+                                                    @php $sTerms = \App\Models\Setting::get('invoice_terms'); @endphp
+                                                    <div class="form-group">
+                                                        <label class="font-weight-bold text-dark">
+                                                            <i class="fas fa-clipboard-list text-primary mr-1"></i> Invoice Note / Terms (Invoice NOTE: Section)
+                                                        </label>
+                                                        <textarea name="settings[invoice_terms]" class="form-control font-weight-bold" rows="3" placeholder="1. No Return no Exchange without bill&#10;2. Change of Mind is not accepted&#10;3. Damaged or Burned not Accepted" {{ !$canEditSettings ? 'disabled' : '' }}>{{ $sTerms ?? '' }}</textarea>
+                                                        <small class="form-text text-muted">Notes or return terms displayed on the bottom-left of the invoice under NOTE:.</small>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Company / Branch Addresses (Footer Banner) -->
+                                                <div class="col-md-12">
+                                                    @if(isset($compSettings['company_address']))
+                                                    <div class="form-group">
+                                                        <label class="font-weight-bold text-dark">
+                                                            <i class="fas fa-map-marker-alt text-danger mr-1"></i> Company Address / Branches (Invoice Bottom Footer Banner)
+                                                        </label>
+                                                        <textarea name="settings[company_address]" class="form-control" rows="3" placeholder="Branch#1: Shop #22,45, Basement Madina Center The Mall Hall Road, Lhr.&#10;Branch#2: Shop #40,43, 3rd Floor Hassan Center Hall Road, Lhr." {{ !$canEditSettings ? 'disabled' : '' }}>{{ $compSettings['company_address']['value'] }}</textarea>
+                                                        <small class="form-text text-muted">Branch addresses displayed inside the bottom footer banner on invoices.</small>
+                                                    </div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Social Links Card -->
+                                    <div class="card mb-4 border shadow-sm">
+                                        <div class="card-header bg-white font-weight-bold d-flex align-items-center">
+                                            <i class="fas fa-share-alt text-primary mr-2"></i> Social Media Links (Receipts)
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                @foreach(['facebook_link', 'tiktok_link', 'instagram_link', 'website_link'] as $socKey)
+                                                    @if(isset($compSettings[$socKey]))
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label>{{ $compSettings[$socKey]['label'] }}</label>
+                                                            <input type="text" name="settings[{{ $socKey }}]" class="form-control" value="{{ $compSettings[$socKey]['value'] }}" {{ !$canEditSettings ? 'disabled' : '' }}>
+                                                        </div>
+                                                    </div>
+                                                    @endif
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Any other company settings -->
+                                    @php
+                                        $handledKeys = [
+                                            'company_logo', 'company_name', 'currency_symbol', 'company_phone',
+                                            'invoice_company_name', 'invoice_online_link',
+                                            'invoice_header_contacts_left', 'invoice_header_contacts_right', 'invoice_header_tagline',
+                                            'company_address', 'invoice_terms', 'facebook_link', 'tiktok_link', 'instagram_link', 'website_link'
+                                        ];
+                                    @endphp
+                                    @foreach($compSettings as $setting)
+                                        @if(in_array($setting['key'], $handledKeys))
+                                            @continue
+                                        @endif
+                                        <div class="form-group">
+                                            <label>{{ $setting['label'] }}</label>
+                                            @if ($setting['type'] === 'text')
+                                                <textarea name="settings[{{ $setting['key'] }}]" class="form-control" rows="3" {{ !$canEditSettings ? 'disabled' : '' }}>{{ $setting['value'] }}</textarea>
+                                            @else
+                                                <input type="text" name="settings[{{ $setting['key'] }}]" class="form-control" value="{{ $setting['value'] }}" {{ !$canEditSettings ? 'disabled' : '' }}>
+                                            @endif
+                                            @if ($setting['description'])
+                                                <small class="form-text text-muted">{{ $setting['description'] }}</small>
+                                            @endif
+                                        </div>
+                                    @endforeach
                                 </div>
 
                                 <!-- Sales Tab -->
