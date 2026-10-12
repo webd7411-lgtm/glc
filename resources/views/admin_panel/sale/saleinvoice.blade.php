@@ -505,6 +505,7 @@
         $leftContacts = \App\Models\Setting::get('invoice_header_contacts_left', "Faisal Mehmood\n0325 4682466\nFurqaan Shakeel\n03044576200");
         $rightContacts = \App\Models\Setting::get('invoice_header_contacts_right', "Anjum Shakeel\n03008033184\nTayyab Shakeel\n03054453139\nPTCL #: 042 37322272\n042 37232370");
         $companyName = \App\Models\Setting::get('invoice_company_name') ?: \App\Models\Setting::get('company_name', 'Long Life Accessories');
+        $showCompanyName = \App\Models\Setting::get('show_company_name_on_print', '0') == '1';
         $invoiceOnlineLink = \App\Models\Setting::get('invoice_online_link');
         $headerTagline = \App\Models\Setting::get('invoice_header_tagline', "Power Bank, Battery, Data Cable, Charger, Head Phone\nHandsfree, Bluetooth & Multimedia");
         $companyAddress = \App\Models\Setting::get('company_address', "Branch#1: Shop #22,45, Basement Madina Center The Mall Hall Road, Lhr.\nBranch#2: Shop #40,43, 3rd Floor Hassan Center Hall Road, Lhr.");
@@ -565,7 +566,9 @@
                                 </svg>
                             @endif
                         </div>
-                        <div class="brand-title">{{ $companyName }}</div>
+                        @if($showCompanyName && !empty($companyName))
+                            <div class="brand-title">{{ $companyName }}</div>
+                        @endif
                         @if(!empty($headerTagline))
                             <div class="brand-taglines">
                                 {!! nl2br(e($headerTagline)) !!}
@@ -657,25 +660,6 @@
                                                 <span class="text-muted fw-normal" style="font-size: 11px;">({{ $item['item_code'] }})</span>
                                             @endif
                                         </div>
-                                        @if (!empty($item['color']) || !empty($item['size_val']))
-                                            <div class="item-details">
-                                                @if (!empty($item['color']))
-                                                    <span>
-                                                        @if(is_array($item['color']))
-                                                            {{ implode(', ', $item['color']) }}
-                                                        @else
-                                                            {{ $item['color'] }}
-                                                        @endif
-                                                    </span>
-                                                @endif
-                                                @if (!empty($item['size_val']) && $item['size_val'] !== '-')
-                                                    <span class="ms-1">| {{ $item['size_val'] }}</span>
-                                                @endif
-                                                @if ((int)($item['pieces_per_box'] ?? 1) > 1)
-                                                    <span class="ms-1">| Pack: {{ $item['pieces_per_box'] }} pcs</span>
-                                                @endif
-                                            </div>
-                                        @endif
                                     </td>
                                     <td class="col-qty">{{ $qtyDisplay }}</td>
                                     <td class="col-rate">{{ number_format($item['price'], 2) }}</td>

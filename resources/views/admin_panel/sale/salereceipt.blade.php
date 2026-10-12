@@ -318,15 +318,18 @@
             } elseif (file_exists(public_path($defaultLogo))) {
                 $activeLogo = asset($defaultLogo);
             }
+            $showCompanyName = \App\Models\Setting::get('show_company_name_on_print', '0') == '1';
         @endphp
         @if(!empty($activeLogo))
             <div class="receipt-logo">
                 <img src="{{ $activeLogo }}" alt="Company Logo" style="max-height: 52px; max-width: 160px; object-fit: contain; margin: 0 auto; display: block;">
             </div>
         @endif
-        <div class="company-name" style="font-size: 16px; font-weight: 800; color: #000; text-align: center; margin-top: 2px;">{{ $companyName }}</div>
+        @if($showCompanyName && !empty($companyName))
+            <div class="company-name" style="font-size: 16px; font-weight: 800; color: #000; text-align: center; margin-top: 2px;">{{ $companyName }}</div>
+        @endif
         @if(!empty($headerTagline))
-            <div style="font-size: 9px; font-weight: 600; text-align: center; color: #000; line-height: 1.25; margin-top: 2px;">
+            <div style="font-size: 9.5px; font-weight: 700; text-align: center; color: #000; line-height: 1.35; margin-top: 3px; margin-bottom: 2px;">
                 {!! nl2br(e($headerTagline)) !!}
             </div>
         @endif

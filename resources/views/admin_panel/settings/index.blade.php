@@ -187,6 +187,20 @@
                                                     </div>
                                                 </div>
 
+                                                <!-- Show / Hide Company Name Text Toggle -->
+                                                <div class="col-md-12 mb-3">
+                                                    @php
+                                                        $showCompNameSetting = \App\Models\Setting::get('show_company_name_on_print', '0');
+                                                    @endphp
+                                                    <div class="custom-control custom-switch bg-white p-2 pl-5 border rounded shadow-sm">
+                                                        <input type="hidden" name="settings[show_company_name_on_print]" value="0">
+                                                        <input type="checkbox" class="custom-control-input" id="showCompNameToggle" name="settings[show_company_name_on_print]" value="1" {{ $showCompNameSetting == '1' ? 'checked' : '' }} {{ !$canEditSettings ? 'disabled' : '' }}>
+                                                        <label class="custom-control-label font-weight-bold text-dark" for="showCompNameToggle">
+                                                            Show Company Name text on Invoice & Receipt <span class="text-muted font-weight-normal">(Default: OFF &mdash; Logo image mein pehle se GLC likha hua hai)</span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+
                                                 <!-- Header Left Contacts -->
                                                 <div class="col-md-6">
                                                     @php $sLeft = $compSettings['invoice_header_contacts_left'] ?? null; @endphp
@@ -276,7 +290,7 @@
                                     @php
                                         $handledKeys = [
                                             'company_logo', 'web_site_logo', 'company_name', 'currency_symbol', 'company_phone',
-                                            'invoice_company_name', 'invoice_online_link',
+                                            'invoice_company_name', 'invoice_online_link', 'show_company_name_on_print',
                                             'invoice_header_contacts_left', 'invoice_header_contacts_right', 'invoice_header_tagline',
                                             'company_address', 'invoice_terms', 'facebook_link', 'tiktok_link', 'instagram_link', 'website_link'
                                         ];
