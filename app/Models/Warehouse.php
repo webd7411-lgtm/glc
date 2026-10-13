@@ -9,7 +9,13 @@ class Warehouse extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'warehouse_name',
+        'location',
+        'remarks',
+        'creater_id',
+        'branch_id',
+    ];
 
     public function user(){
         return $this->belongsTo(User::class, 'creater_id');

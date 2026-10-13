@@ -63,18 +63,34 @@ class WarehouseController extends Controller
 
     public function store(Request $request)
     {
+        $request->validate([
+            'warehouse_name' => 'required|string|max:255',
+            'location'       => 'nullable|string|max:255',
+            'remarks'        => 'nullable|string',
+        ]);
+
         if ($request->id) {
             if (! auth()->user()->can('warehouse.edit')) {
                 return back()->with('error', 'Unauthorized action.');
             }
-            Warehouse::findOrFail($request->id)->update($request->all());
+            $warehouse = Warehouse::findOrFail($request->id);
+            $warehouse->update([
+                'warehouse_name' => $request->warehouse_name,
+                'location'       => $request->location,
+                'remarks'        => $request->remarks,
+            ]);
 
             return back()->with('success', 'Warehouse Updated Successfully');
         } else {
             if (! auth()->user()->can('warehouse.create')) {
                 return back()->with('error', 'Unauthorized action.');
             }
-            Warehouse::create($request->all());
+            Warehouse::create([
+                'warehouse_name' => $request->warehouse_name,
+                'location'       => $request->location,
+                'remarks'        => $request->remarks,
+                'creater_id'     => auth()->id(),
+            ]);
 
             return back()->with('success', 'Warehouse Created Successfully');
         }
@@ -83,13 +99,21 @@ class WarehouseController extends Controller
     public function delete($id)
     {
         if (! auth()->user()->can('warehouse.delete')) {
-            return response()->json(['error' => 'Unauthorized action.'], 403);
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json(['error' => 'Unauthorized action.'], 403);
+            }
+            return back()->with('error', 'Unauthorized action.');
         }
+
         Warehouse::findOrFail($id)->delete();
 
-        return response()->json([
-            'success' => 'Warehouse Deleted Successfully',
-            'reload' => true,
-        ]);
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json([
+                'success' => 'Warehouse Deleted Successfully',
+                'reload' => true,
+            ]);
+        }
+
+        return back()->with('success', 'Warehouse Deleted Successfully');
     }
 }
